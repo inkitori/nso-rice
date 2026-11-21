@@ -16,9 +16,9 @@ sketchybar --default updates=when_shown \
 
 # The game's own Start button sprite -> Raycast
 sketchybar --add item start left \
-  --set start width=136 icon.drawing=off label.drawing=off background.color=0x00000000 \
+  --set start width=136 icon.drawing=off label="START" label.font="PixelMplus10:Bold:20.0" label.padding_left=46 background.color=0x00000000 \
     background.border_width=0 background.height=32 background.image="$I/button_start.png" \
-    click_script="open raycast://"
+    click_script="\"$HOME/Applications/Windose Start.app/Contents/MacOS/WindoseStart\" --toggle"
 
 # App spaces (yabai labels), numbered like alt-1..6; mint when focused
 n=1

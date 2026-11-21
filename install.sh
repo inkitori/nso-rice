@@ -32,5 +32,6 @@ yabai --start-service || yabai --restart-service
 skhd --start-service || skhd --restart-service
 brew services restart sketchybar
 brew services restart borders
+"$R/launcher/build.sh"
 open -a Übersicht
 "$R/nso/wall.sh" ame

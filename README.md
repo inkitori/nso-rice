@@ -6,6 +6,8 @@ Needy Streamer Overload macOS rice: yabai + skhd + borders, SketchyBar taskbar, 
 ./install.sh
 ```
 
+Launcher: ⌥Space or START (`launcher/`).
+
 Then: hide the macOS menu bar (Control Center → Automatically hide and show the menu bar → Always), and grant yabai/skhd Accessibility.
 
 - Wallpaper: `~/.config/nso/wall.sh ame|kangel|galaxy|street|windose`
