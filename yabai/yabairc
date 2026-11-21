@@ -90,20 +90,9 @@ yabai -m rule --add app="^texpresso$" manage=on
 # Biggest display = the external monitor when plugged in, else the laptop.
 # Labels are given to that display's own spaces in order, so a label never
 # lands on the laptop's lone space (macOS won't move a display's last space).
-LABELS="zen claude cmux slack discord spotify"
-BIG=$(yabai -m query --displays | jq 'max_by(.frame.w * .frame.h).index')
-yabai -m query --spaces | jq -r '.[] | select(.label != "") | .index' | while read -r i; do
-    yabai -m space "$i" --label "" 2>/dev/null
-done
-while [ "$(yabai -m query --spaces --display "$BIG" | jq 'length')" -lt 6 ]; do
-    yabai -m display --focus "$BIG" 2>/dev/null
-    yabai -m space --create "$BIG"
-done
-set -- $(yabai -m query --spaces --display "$BIG" | jq -r '.[].index')
-for label in $LABELS; do
-    yabai -m space "$1" --label "$label"
-    shift
-done
+"$HOME/.config/yabai/label-spaces.sh"
+yabai -m signal --add event=display_added   action="\$HOME/.config/yabai/label-spaces.sh"
+yabai -m signal --add event=display_removed action="\$HOME/.config/yabai/label-spaces.sh"
 
 # ── app → space pinning (SA required to actually move windows) ───────────────
 yabai -m rule --add app="^(Zen|Firefox)$" space=zen
@@ -123,6 +112,9 @@ pgrep -xq Claude || open -gja Claude
 # in a stale state. Re-issuing the layout forces a re-tile.
 yabai -m signal --add app='^Ghostty$' event=window_created   action='yabai -m space --layout bsp'
 yabai -m signal --add app='^Ghostty$' event=window_destroyed action='yabai -m space --layout bsp'
+
+# Tell the bar the moment the space changes (macOS's own notice waits for the slide animation).
+yabai -m signal --add event=space_changed action="sketchybar --trigger nso_space_change"
 
 # ── final pass: sweep existing windows back to their assigned spaces ─────────
 # Re-applies all rules to currently-managed windows. Run interactively any

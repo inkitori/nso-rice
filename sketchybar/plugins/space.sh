@@ -1,8 +1,9 @@
 #!/bin/bash
-# Highlight this app space if it's the focused yabai space
+# Highlights the focused yabai space's tab: one yabai query, one sketchybar call for all six.
 cur=$(yabai -m query --spaces --space | jq -r .label)
-if [ "space.$cur" = "$NAME" ]; then
-  sketchybar --set "$NAME" background.color=0xff90f4e4
-else
-  sketchybar --set "$NAME" background.color=0xfffff8ff
-fi
+args=()
+for l in zen claude cmux slack discord spotify; do
+  [ "$l" = "$cur" ] && c=0xff90f4e4 || c=0xfffff8ff
+  args+=(--set "space.$l" background.color=$c)
+done
+sketchybar "${args[@]}"
