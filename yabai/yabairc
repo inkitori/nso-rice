@@ -113,8 +113,8 @@ pgrep -xq Claude || open -gja Claude
 yabai -m signal --add app='^Ghostty$' event=window_created   action='yabai -m space --layout bsp'
 yabai -m signal --add app='^Ghostty$' event=window_destroyed action='yabai -m space --layout bsp'
 
-# Tell the bar the moment the space changes (macOS's own notice waits for the slide animation).
-yabai -m signal --add event=space_changed action="sketchybar --trigger nso_space_change"
+# Tell the bar which space it changed to, by id (macOS reorders spaces, so indexes shift), so it never asks mid-slide.
+yabai -m signal --add event=space_changed action='sketchybar --trigger nso_space_change LABEL="$(yabai -m query --spaces | jq -r ".[] | select(.id == $YABAI_SPACE_ID) | .label")"'
 
 # ── final pass: sweep existing windows back to their assigned spaces ─────────
 # Re-applies all rules to currently-managed windows. Run interactively any

@@ -30,7 +30,7 @@ for l in zen claude cmux slack discord spotify; do
   n=$((n+1))
 done
 sketchybar --add item spaces left --set spaces drawing=off updates=on script="$P/space.sh" \
-  --subscribe spaces nso_space_change space_change display_change
+  --subscribe spaces nso_space_change display_change
 
 # Front app as a taskbar window tab
 sketchybar --add item front_app left \
