@@ -26,7 +26,7 @@ n=1
 for l in zen claude cmux slack discord spotify; do
   sketchybar --add item space.$l left \
     --set space.$l icon="$n" label="$l" icon.font="$FB" icon.padding_left=8 icon.padding_right=4 \
-      label.padding_right=8 click_script="yabai -m space --focus $l"
+      label.padding_right=8 click_script="sketchybar --trigger nso_space_change LABEL=$l; yabai -m space --focus $l"
   n=$((n+1))
 done
 sketchybar --add item spaces left --set spaces drawing=off updates=on script="$P/space.sh" \
