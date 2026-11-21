@@ -16,12 +16,12 @@ export const initialState = {
 
 export const updateState = (event, prev) => {
   if (event.type === "SEND") {
-    return { ...prev, msgs: [...prev.msgs, { me: true, sticker: event.sticker }].slice(-3) };
+    return { ...prev, msgs: [...prev.msgs, { me: true, sticker: event.sticker }].slice(-30) };
   }
   const tick = prev.tick + 1;
   if (tick % 50 === 0) {
     const text = pick();
-    return { tick, msgs: [...prev.msgs, { me: false, text }].slice(-3) };
+    return { tick, msgs: [...prev.msgs, { me: false, text }].slice(-30) };
   }
   return { ...prev, tick };
 };
@@ -36,19 +36,32 @@ const body = css`
   padding: 0 !important;
   background: url(${A}JINEBG.png) center / cover;
 `;
+// Fixed height and scrollable. column-reverse keeps it pinned to the newest message at the bottom.
 const chat = css`
-  min-height: 210px;
+  height: 440px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: 10px;
   padding: 8px 10px 10px;
+`;
+const list = css`
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  padding-right: 4px;
+  > * { flex: none; }
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-thumb { background: ${C.ink}; }
+  &::-webkit-scrollbar-track { background: transparent; }
 `;
 const datePill = css`
   align-self: center;
   width: 118px;
   height: 16px;
-  margin-bottom: auto;
+  flex: none;
+  margin-bottom: 6px;
   background: url(${A}LineDateBG.png);
   font-size: 10px;
   line-height: 16px;
@@ -97,19 +110,21 @@ export const render = ({ msgs }, dispatch) => {
     <Win title="JINE" bodyClass={body}>
       <div className={chat}>
         <div className={datePill}>{d.getMonth() + 1}/{d.getDate()}</div>
-        {msgs.map((m, i) =>
-          m.me ? (
-            <div key={i} className={mine}>
-              <span>Read</span>
-              <img src={`${A}stickers/${m.sticker}.png`} />
-            </div>
-          ) : (
-            <div key={i} className={them}>
-              <img src={`${A}icon_jine_ame.png`} />
-              <div className={bubble}>{m.text}</div>
-            </div>
-          )
-        )}
+        <div className={list}>
+          {msgs.map((m, i) => [m, i]).reverse().map(([m, i]) =>
+            m.me ? (
+              <div key={i} className={mine}>
+                <span>Read</span>
+                <img src={`${A}stickers/${m.sticker}.png`} />
+              </div>
+            ) : (
+              <div key={i} className={them}>
+                <img src={`${A}icon_jine_ame.png`} />
+                <div className={bubble}>{m.text}</div>
+              </div>
+            )
+          )}
+        </div>
       </div>
       <div className={tray}>
         {STICKERS.map((s) => (
