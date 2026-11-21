@@ -228,6 +228,7 @@ final class App: NSObject, NSApplicationDelegate {
   let model = Model()
   var panel: Panel!
   var hotkey: EventHotKeyRef?
+  var previous: NSRunningApplication?
 
   func applicationDidFinishLaunching(_ n: Notification) {
     editMenu()
@@ -252,7 +253,7 @@ final class App: NSObject, NSApplicationDelegate {
     NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] e in
       guard let self, self.panel.isVisible else { return e }
       switch Int(e.keyCode) {
-      case kVK_Escape: self.hide()
+      case kVK_Escape: self.hide(restore: true)
       case kVK_DownArrow: self.model.move(1)
       case kVK_UpArrow: self.model.move(-1)
       case kVK_Return, kVK_ANSI_KeypadEnter: self.model.run(self.model.sel)
@@ -287,7 +288,7 @@ final class App: NSObject, NSApplicationDelegate {
     if status != noErr { NSLog("Windose Start: ⌥Space is taken (\(status))") }
   }
 
-  func toggle() { panel.isVisible ? hide() : show() }
+  func toggle() { panel.isVisible ? hide(restore: true) : show() }
 
   func show() {
     model.scan()
@@ -296,12 +297,19 @@ final class App: NSObject, NSApplicationDelegate {
     let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) } ?? NSScreen.main!
     let f = screen.frame
     panel.setFrameOrigin(NSPoint(x: f.minX + 4, y: f.maxY - TOP - 2 - panel.frame.height))
+    previous = NSWorkspace.shared.frontmostApplication
     NSApp.activate(ignoringOtherApps: true)
     panel.makeKeyAndOrderFront(nil)
     if let field = findField(panel.contentView) { panel.makeFirstResponder(field) }
   }
 
-  func hide() { panel.orderOut(nil) }
+  // Closing it (esc, START, ⌥Space) hands focus back to the app it opened over; launching something or clicking away does not.
+  func hide(restore: Bool = false) {
+    guard panel.isVisible else { return }
+    panel.orderOut(nil)
+    if restore, let p = previous, p != NSRunningApplication.current { p.activate() }
+    previous = nil
+  }
 
   func findField(_ v: NSView?) -> NSTextField? {
     guard let v else { return nil }
