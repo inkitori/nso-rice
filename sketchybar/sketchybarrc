@@ -1,0 +1,65 @@
+#!/bin/bash
+# NEEDY GIRL OVERDOSE taskbar: game palette, PixelMplus10, real game sprites.
+P="$HOME/.config/sketchybar/plugins"; I="$HOME/.config/sketchybar/img"
+
+INK=0xff4d23cf; MINT=0xff90f4e4; TITLE=0xfff0d1f1; PAPER=0xfffff8ff; PINK=0xffeaa0e8; RED=0xffff4d6d
+F="PixelMplus10:Regular:15.0"; FB="PixelMplus10:Bold:15.0"; NF="JetBrainsMono Nerd Font:Bold:14.0"
+
+sketchybar --bar position=top height=36 color=$TITLE border_color=$INK border_width=2 \
+  shadow=off padding_left=4 padding_right=6 topmost=window
+
+sketchybar --default updates=when_shown \
+  icon.font="$NF" icon.color=$INK label.font="$F" label.color=$INK \
+  icon.padding_left=6 icon.padding_right=4 label.padding_left=4 label.padding_right=8 \
+  background.color=$PAPER background.border_color=$INK background.border_width=2 \
+  background.corner_radius=0 background.height=26 padding_left=3 padding_right=3
+
+# The game's own Start button sprite -> Raycast
+sketchybar --add item start left \
+  --set start width=136 icon.drawing=off label.drawing=off background.color=0x00000000 \
+    background.border_width=0 background.height=32 background.image="$I/button_start.png" \
+    click_script="open raycast://"
+
+# App spaces (yabai labels), numbered like alt-1..6; mint when focused
+n=1
+for l in zen claude cmux slack discord spotify; do
+  sketchybar --add item space.$l left \
+    --set space.$l icon="$n" label="$l" icon.font="$FB" icon.padding_left=8 icon.padding_right=4 \
+      label.padding_right=8 script="$P/space.sh" click_script="yabai -m space --focus $l" \
+    --subscribe space.$l space_change display_change
+  n=$((n+1))
+done
+
+# Front app as a taskbar window tab
+sketchybar --add item front_app left \
+  --set front_app icon.drawing=off label.padding_left=30 \
+    background.image="$I/windowbase_icon.png" background.image.padding_left=5 \
+    background.color=$MINT script="$P/front_app.sh" \
+  --subscribe front_app front_app_switched
+
+# Right side (added right-to-left)
+sketchybar --add item clock right \
+  --set clock icon.drawing=off label.padding_left=30 label.font="$FB" update_freq=1 \
+    background.image.padding_left=4 script="$P/clock.sh"
+
+sketchybar --add item battery right \
+  --set battery update_freq=60 script="$P/battery.sh" \
+  --subscribe battery power_source_change system_woke
+
+sketchybar --add item volume right \
+  --set volume script="$P/volume.sh" --subscribe volume volume_change
+
+sketchybar --add item cpu right \
+  --set cpu icon.drawing=off label.padding_left=32 background.image="$I/icon_status_stress.png" \
+    background.image.scale=0.5 background.image.padding_left=4 update_freq=3 script="$P/cpu.sh"
+
+sketchybar --add item music right \
+  --set music icon.drawing=off label.padding_left=30 background.image="$I/icon_taskbar_jine.png" \
+    background.image.scale=0.75 background.image.padding_left=4 update_freq=10 updates=on script="$P/music.sh" \
+    label.max_chars=28 background.color=$PINK drawing=off
+
+sketchybar --add item live right \
+  --set live icon="●" icon.font="$F" icon.color=$RED label="LIVE" label.font="$FB" label.color=$RED \
+    background.drawing=off
+
+sketchybar --update

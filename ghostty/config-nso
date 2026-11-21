@@ -1,0 +1,36 @@
+# NSO — internet-angel pastel: lavender paper, ink-purple text, hot-pink cursor.
+# Pair: Claude theme nso (switch.sh nso sets it).
+background = #fbf5ff
+foreground = #4b2fb4
+cursor-color = #ea7cc6
+cursor-text = #ffffff
+selection-background = #f6bde3
+selection-foreground = #3a2290
+
+palette = 0=#4b3a7a
+palette = 1=#e4508f
+palette = 2=#2fa59f
+palette = 3=#d08a1c
+palette = 4=#4a8fd8
+palette = 5=#9b5ce0
+palette = 6=#2aa6c9
+palette = 7=#c9b6f4
+palette = 8=#8b74e0
+palette = 9=#ea7cc6
+palette = 10=#4fbdb8
+palette = 11=#e8a93a
+palette = 12=#72bfea
+palette = 13=#b48af0
+palette = 14=#5ec8e5
+palette = 15=#ede4ff
+
+font-family = JetBrainsMono Nerd Font
+font-family = DotGothic16
+font-size = 14
+
+window-padding-x = 16
+window-padding-y = 12
+window-padding-balance = true
+window-show-tab-bar = never
+cursor-style = block
+cursor-style-blink = true

@@ -1,0 +1,132 @@
+#!/usr/bin/env sh
+# yabai window manager — bsp tiling on macOS. Paired with:
+#   - skhd     (~/.config/skhd/skhdrc)        keyboard binds; see its cheatsheet
+#   - borders  (~/.config/borders/bordersrc)  pink border around focused window
+#   - colors   (~/.config/colors.sh)           shared palette sourced below
+#
+# This config sets up bsp tiling, eight labeled spaces (one per pinned app —
+# Zen, Claude, cmux, Slack, Discord, Spotify), gentle animations,
+# inactive-window fade, and a mouse-drag-to-swap gesture. Apple-protected
+# windows (System Settings, Finder, …) are forced to float.
+#
+# ── SCRIPTING ADDITION (SA) ──────────────────────────────────────────────────
+# Required for: window animations, native fullscreen, mouse-swap-on-drop,
+# sticky toggle, programmatic space create/destroy, and forced positioning of
+# Apple-protected apps. Plain tiling/spaces/rules/skhd binds work without it.
+#
+# One-time setup:
+#   1. Partial SIP disable — boot to Recovery (hold power on Apple Silicon),
+#      lower Startup Security to "Reduced Security", then in Recovery Terminal:
+#        csrutil enable --without fs --without debug --without nvram
+#   2. Apple Silicon only — PAC ABI compat boot-arg, then reboot:
+#        sudo nvram boot-args=-arm64e_preview_abi
+#   3. NOPASSWD sudoers entry (so dock_did_restart can auto-load SA silently):
+#        sudo visudo -f /private/etc/sudoers.d/yabai
+#        # echo "$(whoami) ALL=(root) NOPASSWD: sha256:$(shasum -a 256 $(which yabai) | cut -d' ' -f1) $(which yabai) --load-sa"
+#   4. Install + patch + inject SA. Sequoia builds need a PAC ABI byte-patch
+#      (https://github.com/asmvik/yabai/issues/2686 — known upstream regression):
+#        sudo yabai --load-sa                       # installs loader; inject will fail
+#        sudo ~/.config/yabai/patch-sa-pac-abi.sh  # flips 0x81 → 0x80, re-signs
+#        sudo yabai --load-sa                       # injects (silent = success)
+#   5. Grant yabai Screen Recording permission (System Settings → Privacy &
+#      Security → Screen Recording → +/opt/homebrew/bin/yabai). Required for
+#      animations to actually run; without it, the duration setting silently
+#      no-ops with a log warning.
+#
+# After setup the dock_did_restart signal below auto-injects on every login —
+# no manual work, no password prompts.
+#
+# After `brew upgrade yabai`: just run `~/.config/yabai/post-upgrade.sh` — it
+# refreshes the sudoers hash, re-patches the loader, and re-injects in one go.
+# Logs: /tmp/yabai_$USER.{out,err}.log
+# ─────────────────────────────────────────────────────────────────────────────
+# Boot order is Dock → yabai, so the dock_did_restart signal never sees the
+# initial Dock launch. Inject SA directly here on every yabairc load to cover
+# fresh boots; the signal below still catches mid-session Dock restarts.
+sudo yabai --load-sa
+yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa" 2>/dev/null || true
+
+source "$HOME/.config/colors.sh"
+
+# ── global config ────────────────────────────────────────────────────────────
+yabai -m config                                 \
+    mouse_follows_focus          off            \
+    focus_follows_mouse          autofocus      \
+    window_origin_display        default        \
+    window_placement             second_child   \
+    window_zoom_persist          off            \
+    window_shadow                float          \
+    window_animation_duration    0.15           \
+    window_opacity_duration      0.10           \
+    active_window_opacity        1.0            \
+    normal_window_opacity        0.92           \
+    window_opacity               off            \
+    insert_feedback_color        "$COLOR_ACCENT" \
+    split_ratio                  0.50           \
+    split_type                   auto           \
+    auto_balance                 off            \
+    external_bar                 all:36:0       \
+    top_padding                  12             \
+    bottom_padding               12             \
+    left_padding                 12             \
+    right_padding                12             \
+    window_gap                   10             \
+    layout                       bsp            \
+    mouse_modifier               fn             \
+    mouse_action1                move           \
+    mouse_action2                resize         \
+    mouse_drop_action            swap
+
+# ── float rules — apps that should never tile ────────────────────────────────
+yabai -m rule --add app="^(System Settings|System Information|Activity Monitor|FaceTime|Screen Sharing|Calculator|Stickies|TinkerTool|Progressive Downloader|Transmission|Airflow|Raycast|Karabiner-Elements|LinearMouse|Finder|Webull Desktop|App Store|Software Update)$" manage=off
+yabai -m rule --add title="(Preferences|Settings|Welcome)$" manage=off
+
+# ── force-tile rules — SDL/non-native apps that report can-resize=false ──────
+# texpresso is an SDL window so yabai leaves it floating by default. manage=on
+# overrides that; if the window won't resize cleanly we may need to revisit.
+yabai -m rule --add app="^texpresso$" manage=on
+
+# ── spaces — 6 labeled app spaces, all on the biggest display ───────────────
+# Biggest display = the external monitor when plugged in, else the laptop.
+# Labels are given to that display's own spaces in order, so a label never
+# lands on the laptop's lone space (macOS won't move a display's last space).
+LABELS="zen claude cmux slack discord spotify"
+BIG=$(yabai -m query --displays | jq 'max_by(.frame.w * .frame.h).index')
+yabai -m query --spaces | jq -r '.[] | select(.label != "") | .index' | while read -r i; do
+    yabai -m space "$i" --label "" 2>/dev/null
+done
+while [ "$(yabai -m query --spaces --display "$BIG" | jq 'length')" -lt 6 ]; do
+    yabai -m display --focus "$BIG" 2>/dev/null
+    yabai -m space --create "$BIG"
+done
+set -- $(yabai -m query --spaces --display "$BIG" | jq -r '.[].index')
+for label in $LABELS; do
+    yabai -m space "$1" --label "$label"
+    shift
+done
+
+# ── app → space pinning (SA required to actually move windows) ───────────────
+yabai -m rule --add app="^(Zen|Firefox)$" space=zen
+yabai -m rule --add app="^Claude$"   space=claude
+yabai -m rule --add app="^cmux$"     space=cmux
+yabai -m rule --add app="^Vesktop$"  space=discord
+yabai -m rule --add app="^Slack$"    space=slack
+yabai -m rule --add app="^Spotify$"  space=spotify
+
+# ── auto-launch pinned apps that should always be running ────────────────────
+# Hidden launch (-gj) so it doesn't steal focus during yabai startup; the rule
+# above moves the window to the claude space as soon as it's created.
+pgrep -xq Claude || open -gja Claude
+
+# ── signals ──────────────────────────────────────────────────────────────────
+# Ghostty occasionally lands a window before yabai sees it, leaving the space
+# in a stale state. Re-issuing the layout forces a re-tile.
+yabai -m signal --add app='^Ghostty$' event=window_created   action='yabai -m space --layout bsp'
+yabai -m signal --add app='^Ghostty$' event=window_destroyed action='yabai -m space --layout bsp'
+
+# ── final pass: sweep existing windows back to their assigned spaces ─────────
+# Re-applies all rules to currently-managed windows. Run interactively any
+# time via `alt + ctrl - o` (skhd binding).
+yabai -m rule --apply
+
+echo "yabai configuration loaded.."
