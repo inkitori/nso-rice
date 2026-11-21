@@ -29,6 +29,7 @@ cat > "$P" <<EOF
   <key>ProgramArguments</key><array><string>$A/Contents/MacOS/WindoseStart</string></array>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
+  <key>StandardErrorPath</key><string>$HOME/Library/Logs/windose-start.log</string>
 </dict></plist>
 EOF
 launchctl bootout "gui/$(id -u)/$ID" 2>/dev/null || true

@@ -230,6 +230,7 @@ final class App: NSObject, NSApplicationDelegate {
   var hotkey: EventHotKeyRef?
 
   func applicationDidFinishLaunching(_ n: Notification) {
+    editMenu()
     let view = NSHostingView(rootView: MenuView(m: model))
     view.frame.size = view.fittingSize
     panel = Panel(contentRect: NSRect(origin: .zero, size: view.frame.size),
@@ -260,6 +261,19 @@ final class App: NSObject, NSApplicationDelegate {
       return nil
     }
     registerHotkey()
+  }
+
+  // Accessory apps get no menu bar, so ⌘A ⌘C ⌘V ⌘X ⌘Z need a hidden Edit menu to reach the search field.
+  func editMenu() {
+    let edit = NSMenu(title: "Edit")
+    for (t, s, k) in [("Undo", "undo:", "z"), ("Redo", "redo:", "Z"), ("Cut", "cut:", "x"), ("Copy", "copy:", "c"),
+                      ("Paste", "paste:", "v"), ("Select All", "selectAll:", "a")] {
+      edit.addItem(withTitle: t, action: Selector(s), keyEquivalent: k)
+    }
+    let item = NSMenuItem()
+    item.submenu = edit
+    NSApp.mainMenu = NSMenu()
+    NSApp.mainMenu!.addItem(item)
   }
 
   func registerHotkey() {
