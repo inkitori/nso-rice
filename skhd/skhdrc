@@ -28,7 +28,7 @@
 # Spaces — focus
 #   alt - 1 .. 0              focus space N  (alt-0 = space 10)
 #   alt - z                   focus zen space
-#   alt - i                   focus claude space       (I = AI)
+#   alt - c                   focus claude space
 #   alt - t                   focus cmux space         (T = terminal)
 #   alt - d                   focus discord space
 #   alt - a                   focus slack space
@@ -37,7 +37,7 @@
 #
 # Spaces — send focused window (and follow)
 #   alt + shift - 1 .. 0                  by number
-#   ctrl + alt + shift - f/d/t/s/c/a/i/o  by label (same letters as focus)
+#   ctrl + alt + shift - z/c/t/d/a/s  by label (same letters as focus)
 #
 # Space layout
 #   alt + shift - s           toggle bsp ↔ stack
@@ -132,7 +132,7 @@ alt - 0 : yabai -m space --focus 10
 
 # spaces — focus by label (mirrors yabairc's space 1..7 labels)
 alt - z : yabai -m space --focus zen; pgrep -xq "Zen" || open -a "Zen"
-alt - i : yabai -m space --focus claude; pgrep -xq "Claude" || open -a "Claude"
+alt - c : yabai -m space --focus claude; pgrep -xq "Claude" || open -a "Claude"
 alt - t : yabai -m space --focus cmux; pgrep -xq "cmux" || open -a "cmux"
 alt - d : yabai -m space --focus discord; pgrep -xq "Vesktop" || open -a "Vesktop"
 alt - a : yabai -m space --focus slack; pgrep -xq "Slack" || open -a "Slack"
@@ -158,7 +158,7 @@ alt + shift - 0 : yabai -m window --space 10; yabai -m space --focus 10
 
 # send to labeled space — letter matches the alt-<letter> focus binds above
 ctrl + alt + shift - z : yabai -m window --space zen;     yabai -m space --focus zen
-ctrl + alt + shift - i : yabai -m window --space claude;  yabai -m space --focus claude
+ctrl + alt + shift - c : yabai -m window --space claude;  yabai -m space --focus claude
 ctrl + alt + shift - t : yabai -m window --space cmux;    yabai -m space --focus cmux
 ctrl + alt + shift - d : yabai -m window --space discord; yabai -m space --focus discord
 ctrl + alt + shift - a : yabai -m window --space slack;   yabai -m space --focus slack
