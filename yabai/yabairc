@@ -91,16 +91,10 @@ yabai -m rule --add app="^texpresso$" manage=on
 # Labels are given to that display's own spaces in order, so a label never
 # lands on the laptop's lone space (macOS won't move a display's last space).
 "$HOME/.config/yabai/label-spaces.sh"
-yabai -m signal --add event=display_added   action="\$HOME/.config/yabai/label-spaces.sh"
-yabai -m signal --add event=display_removed action="\$HOME/.config/yabai/label-spaces.sh"
+yabai -m signal --add event=display_added   action="sleep 1; \$HOME/.config/yabai/label-spaces.sh"
+yabai -m signal --add event=display_removed action="sleep 1; \$HOME/.config/yabai/label-spaces.sh"
 
-# ── app → space pinning (SA required to actually move windows) ───────────────
-yabai -m rule --add app="^(Zen|Firefox)$" space=zen
-yabai -m rule --add app="^Claude$"   space=claude
-yabai -m rule --add app="^cmux$"     space=cmux
-yabai -m rule --add app="^Vesktop$"  space=discord
-yabai -m rule --add app="^Slack$"    space=slack
-yabai -m rule --add app="^Spotify$"  space=spotify
+# app → space pinning lives in label-spaces.sh, since a rule fixes its space when added.
 
 # ── auto-launch pinned apps that should always be running ────────────────────
 # Hidden launch (-gj) so it doesn't steal focus during yabai startup; the rule

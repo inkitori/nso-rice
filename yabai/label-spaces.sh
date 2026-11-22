@@ -15,4 +15,13 @@ for label in $LABELS; do
   yabai -m space "$1" --label "$label"
   shift
 done
+# Pin apps to their labels. A rule turns its label into a space when added, so re-add them after every relabel.
+pin() { yabai -m rule --remove "pin-$2" 2>/dev/null; yabai -m rule --add label="pin-$2" app="$1" space="$2"; }
+pin '^(Zen|Firefox)$' zen
+pin '^Claude$' claude
+pin '^cmux$' cmux
+pin '^Slack$' slack
+pin '^Vesktop$' discord
+pin '^Spotify$' spotify
+yabai -m rule --apply
 sketchybar --trigger nso_space_change 2>/dev/null
