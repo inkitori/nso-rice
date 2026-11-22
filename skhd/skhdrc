@@ -197,3 +197,9 @@ alt + ctrl - r : \
     sleep 0.5; \
     yabai -m rule --apply; \
     osascript -e 'display notification "yabai + skhd reloaded" with title "wm"'
+
+# Unstick the Dock (spaces won't switch, ⌘Tab dead), e.g. after unplugging a monitor.
+# yabai's dock_did_restart signal reloads its scripting addition.
+alt + ctrl - d : \
+    killall Dock; \
+    osascript -e 'display notification "Dock restarted" with title "wm"'
