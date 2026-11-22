@@ -19,7 +19,7 @@ const MODES = {
   },
   ame: {
     room: true,
-    idle: ["idle", "idle_happy_e", "idle_normal_f", "idle_anxiety_c", "idle_iraira_a", "headphone",
+    idle: ["idle", "idle_normal_f", "idle_anxiety_c", "idle_iraira_a", "headphone",
       "nail", "comic", "sleep", "egosearching", "game_a", "smile"].map(ame),
     extras: [],
   },
