@@ -87,12 +87,13 @@ yabai -m rule --add title="(Preferences|Settings|Welcome)$" manage=off
 yabai -m rule --add app="^texpresso$" manage=on
 
 # ── spaces — 6 labeled app spaces, all on the biggest display ───────────────
+# On a display change the Dock is restarted first (it freezes otherwise: spaces and ⌘Tab stop working).
 # Biggest display = the external monitor when plugged in, else the laptop.
 # Labels are given to that display's own spaces in order, so a label never
 # lands on the laptop's lone space (macOS won't move a display's last space).
 "$HOME/.config/yabai/label-spaces.sh"
-yabai -m signal --add event=display_added   action="sleep 1; \$HOME/.config/yabai/label-spaces.sh"
-yabai -m signal --add event=display_removed action="sleep 1; \$HOME/.config/yabai/label-spaces.sh"
+yabai -m signal --add event=display_added   action="sleep 1; killall Dock; sleep 3; \$HOME/.config/yabai/label-spaces.sh"
+yabai -m signal --add event=display_removed action="sleep 1; killall Dock; sleep 3; \$HOME/.config/yabai/label-spaces.sh"
 
 # app → space pinning lives in label-spaces.sh, since a rule fixes its space when added.
 
