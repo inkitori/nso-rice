@@ -6,4 +6,5 @@ uv run -q desktop.py "$m" "walls/$m-1080.png" 1920 1080 >/dev/null
 echo "$m" > walls/current
 osascript -e 'tell application "System Events"' \
   -e "set picture of desktop 1 to \"$PWD/walls/$m-retina.png\"" \
-  -e "set picture of desktop 2 to \"$PWD/walls/$m-1080.png\"" -e 'end tell'
+  -e "repeat with i from 2 to count of desktops" \
+  -e "set picture of desktop i to \"$PWD/walls/$m-1080.png\"" -e 'end repeat' -e 'end tell'
